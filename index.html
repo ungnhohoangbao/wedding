@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tạo Mã QR Thiệp Cưới Nét Sang Trọng</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Thư viện QRCode Styling nghệ thuật & chuẩn quét 100% -->
+  <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FAF8F5;
+    }
+    /* Đảm bảo canvas render sắc nét trên mọi mật độ màn hình Retina/High-DPI */
+    #qrCanvas canvas {
+      width: 260px !important;
+      height: 260px !important;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between p-4 md:p-8">
+
+  <!-- Main Container -->
+  <div class="max-w-4xl mx-auto w-full bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden my-auto">
+    
+    <!-- Header -->
+    <div class="bg-rose-50/70 border-b border-rose-100/60 p-6 text-center">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-rose-100 text-rose-600 mb-3 shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-current" viewBox="0 0 24 24">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900">Tạo Mã QR Thiệp Cưới - Dễ Quét 100%</h1>
+      <p class="text-slate-500 text-sm mt-1">Mã tĩnh vĩnh viễn • Xuất file 300x300px sắc nét • Viền trắng tối giản</p>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 p-6 md:p-8">
+
+      <!-- Left Panel: Controls -->
+      <div class="md:col-span-7 space-y-5">
+        
+        <!-- URL Input -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Đường Link Google Maps (Địa Điểm)</label>
+          <textarea id="urlInput" rows="2" class="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none focus:bg-white transition-all text-slate-700 font-mono">Nhập URL</textarea>
+          <p class="text-[11px] text-slate-400 mt-1">Link tối ưu giúp hiển thị rõ tên Nhà Văn Hoá và tọa độ khi quét.</p>
+        </div>
+
+        <!-- Preset Color Palette -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Màu Tông Thiệp Cưới</label>
+          <div class="grid grid-cols-5 gap-2.5" id="presetColors">
+            <button data-color="#8B0000" class="h-10 rounded-xl border-2 border-slate-200 bg-[#8B0000] hover:scale-105 transition-transform shadow-sm" title="Đỏ Đô Sang Trọng"></button>
+            <button data-color="#4A2E2B" class="h-10 rounded-xl border-2 border-slate-200 bg-[#4A2E2B] hover:scale-105 transition-transform shadow-sm" title="Nâu Trầm"></button>
+            <button data-color="#991B1B" class="h-10 rounded-xl border-2 border-slate-200 bg-red-800 hover:scale-105 transition-transform shadow-sm" title="Đỏ Nhung"></button>
+            <button data-color="#9D174D" class="h-10 rounded-xl border-2 border-slate-200 bg-pink-800 hover:scale-105 transition-transform shadow-sm" title="Hồng Đô"></button>
+            <button data-color="#000000" class="h-10 rounded-xl border-2 border-slate-200 bg-slate-800 hover:scale-105 transition-transform shadow-sm" title="Đen"></button>
+          </div>
+        </div>
+
+        <!-- Color Pickers -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Màu Mã QR</label>
+            <div class="flex items-center space-x-2 border border-slate-200 rounded-xl p-2 bg-slate-50">
+              <input type="color" id="qrColor" value="#8B0000" class="w-8 h-8 rounded-lg cursor-pointer border-0 bg-transparent">
+              <span id="qrColorHex" class="text-xs font-mono font-semibold text-slate-700">#8B0000</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Màu Nền Thiệp</label>
+            <div class="flex items-center space-x-2 border border-slate-200 rounded-xl p-2 bg-slate-50">
+              <input type="color" id="bgColor" value="#ffffff" class="w-8 h-8 rounded-lg cursor-pointer border-0 bg-transparent">
+              <span id="bgColorHex" class="text-xs font-mono font-semibold text-slate-700">#FFFFFF</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Icon selection & Custom text -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Biểu Tượng Trung Tâm</label>
+            <select id="iconSelect" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
+              <option value="heart" selected>Trái tim (❤️)</option>
+              <option value="rings">Nhẫn cưới (💍)</option>
+              <option value="pin">Ghim bản đồ (📍)</option>
+              <option value="double_happiness">Song Hỷ (囍)</option>
+              <option value="custom">Ký tự / Emoji riêng...</option>
+              <option value="none">Không dùng biểu tượng</option>
+            </select>
+          </div>
+          <div id="customIconBox" class="hidden">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Nhập Emoji / Ký tự</label>
+            <input type="text" id="customIconInput" value="💒" maxlength="5" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none text-center">
+          </div>
+          <div id="dotsStyleBox">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Kiểu Họa Tiết Mắt Quét</label>
+            <select id="dotsStyle" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
+              <option value="rounded">Chấm bo tròn (Mềm mại)</option>
+              <option value="dots">Chấm tròn xịn (Dots)</option>
+              <option value="square" selected>Vuông cổ điển</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Error Correction Level Selection -->
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Mức Sửa Lỗi (Error Correction Level)</label>
+          <select id="errorCorrectionSelect" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:outline-none">
+            <option value="L" selected>Mức L (7%) - Tối giản, mắt thưa nhất (Nên dùng khi KHÔNG có icon)</option>
+            <option value="M">Mức M (15%) - Trung bình</option>
+            <option value="Q">Mức Q (25%) - Cao</option>
+            <option value="H">Mức H (30%) - An toàn nhất (Bắt buộc dùng khi CÓ ICON ở giữa)</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Right Panel: Preview & Export -->
+      <div class="md:col-span-5 flex flex-col items-center justify-center bg-slate-50 rounded-2xl p-6 border border-slate-100">
+        
+        <!-- Canvas Container -->
+        <div class="bg-white p-3 rounded-2xl shadow-lg border border-slate-100 relative group flex items-center justify-center">
+          <div id="qrCanvas" class="flex items-center justify-center"></div>
+        </div>
+
+        <p class="text-xs text-slate-400 mt-4 text-center">Kích thước file 300x300px • Viền trắng thu gọn tối đa</p>
+
+        <!-- Download Buttons -->
+        <div class="w-full mt-5 space-y-2">
+          <button id="downloadBtn" class="w-full py-3 px-4 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl shadow-md shadow-rose-200 flex items-center justify-center space-x-2 transition-all active:scale-[0.98]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            <span>Tải File PNG Nét Cao (300x300px)</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Footer Note -->
+    <div class="bg-slate-50 border-t border-slate-100 px-6 py-3 text-center text-xs text-slate-400">
+      Mã QR tĩnh tạo từ công cụ này <b>vĩnh viễn không hết hạn</b> và dẫn trực tiếp tới Google Maps.
+    </div>
+
+  </div>
+
+  <script>
+    // Helper function to build clean SVGs with custom color
+    function getIconSvg(type, color, customChar = "囍") {
+      if (type === 'none') return "";
+      
+      let svgContent = "";
+      if (type === 'heart') {
+        svgContent = `<path fill="${color}" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>`;
+      } else if (type === 'pin') {
+        svgContent = `<path fill="${color}" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>`;
+      } else if (type === 'rings') {
+        svgContent = `<path fill="${color}" d="M9 2a6 6 0 00-6 6c0 3.03 2.25 5.54 5.17 5.93a6 6 0 107.66 0A5.992 5.992 0 0021 8a6 6 0 00-6-6 5.96 5.96 0 00-3 1.05A5.96 5.96 0 009 2zm0 2c.86 0 1.66.3 2.3 0.8A4 4 0 019 12a4 4 0 110-8zm6 0a4 4 0 110 8 4 4 0 01-2.3-7.2A3.98 3.98 0 0115 4z"/>`;
+      } else if (type === 'double_happiness' || type === 'custom') {
+        const char = type === 'double_happiness' ? "囍" : (customChar || "❤");
+        svgContent = `<text x="50%" y="55%" dominant-baseline="central" text-anchor="middle" font-size="16" font-family="sans-serif" font-weight="bold" fill="${color}">${char}</text>`;
+      }
+
+      return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100" height="100">
+          ${svgContent}
+        </svg>
+      `);
+    }
+
+    // UI Elements
+    const urlInput = document.getElementById('urlInput');
+    const qrColorInput = document.getElementById('qrColor');
+    const bgColorInput = document.getElementById('bgColor');
+    const qrColorHex = document.getElementById('qrColorHex');
+    const bgColorHex = document.getElementById('bgColorHex');
+    const iconSelect = document.getElementById('iconSelect');
+    const customIconBox = document.getElementById('customIconBox');
+    const customIconInput = document.getElementById('customIconInput');
+    const dotsStyleSelect = document.getElementById('dotsStyle');
+    const errorCorrectionSelect = document.getElementById('errorCorrectionSelect');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const presetButtons = document.querySelectorAll('#presetColors button');
+
+    // High resolution render (600x600 canvas) scaled down via CSS to ensure absolute sharpness
+    let qrCode = new QRCodeStyling({
+      width: 600,
+      height: 600,
+      type: "canvas",
+      data: urlInput.value.trim(),
+      image: getIconSvg('heart', '#8B0000'),
+      dotsOptions: {
+        color: "#8B0000",
+        type: "rounded"
+      },
+      cornersSquareOptions: {
+        color: "#8B0000",
+        type: "extra-rounded"
+      },
+      cornersDotOptions: {
+        color: "#8B0000",
+        type: "dot"
+      },
+      backgroundOptions: {
+        color: "#ffffff",
+      },
+      imageOptions: {
+        crossOrigin: "anonymous",
+        margin: 2,
+        imageSize: 0.22
+      },
+      qrOptions: {
+        errorCorrectionLevel: "H"
+      }
+    });
+
+    // Render to DOM
+    const container = document.getElementById("qrCanvas");
+    qrCode.append(container);
+
+    let isAutoAdjusting = false;
+
+    // Update Function
+    function updateQR(fromUserChange = false) {
+      const fgColor = qrColorInput.value;
+      const bgColor = bgColorInput.value;
+      const iconType = iconSelect.value;
+      const customChar = customIconInput.value.trim();
+      const dotType = dotsStyleSelect.value;
+      const urlText = urlInput.value.trim() || "https://google.com";
+
+      // Show/hide custom icon input
+      if (iconType === 'custom') {
+        customIconBox.classList.remove('hidden');
+      } else {
+        customIconBox.classList.add('hidden');
+      }
+
+      // Auto adjust error correction level based on icon presence
+      if (fromUserChange && !isAutoAdjusting) {
+        if (iconType !== 'none') {
+          errorCorrectionSelect.value = "H";
+        } else {
+          errorCorrectionSelect.value = "L";
+        }
+      }
+
+      const ecl = errorCorrectionSelect.value;
+
+      qrColorHex.textContent = fgColor.toUpperCase();
+      bgColorHex.textContent = bgColor.toUpperCase();
+
+      const currentIconSvg = getIconSvg(iconType, fgColor, customChar);
+
+      qrCode.update({
+        data: urlText,
+        image: currentIconSvg,
+        dotsOptions: {
+          color: fgColor,
+          type: dotType
+        },
+        cornersSquareOptions: {
+          color: fgColor,
+          type: "extra-rounded"
+        },
+        cornersDotOptions: {
+          color: fgColor,
+          type: "dot"
+        },
+        backgroundOptions: {
+          color: bgColor
+        },
+        imageOptions: {
+          crossOrigin: "anonymous",
+          margin: 1, // Minimize white inner logo margin
+          imageSize: 0.22
+        },
+        qrOptions: {
+          errorCorrectionLevel: ecl
+        }
+      });
+    }
+
+    // Event Listeners
+    urlInput.addEventListener('input', () => updateQR(false));
+    qrColorInput.addEventListener('input', () => updateQR(false));
+    bgColorInput.addEventListener('input', () => updateQR(false));
+    iconSelect.addEventListener('change', () => updateQR(true));
+    customIconInput.addEventListener('input', () => updateQR(false));
+    dotsStyleSelect.addEventListener('change', () => updateQR(false));
+    errorCorrectionSelect.addEventListener('change', () => updateQR(false));
+
+    presetButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const color = e.target.getAttribute('data-color');
+        qrColorInput.value = color;
+        updateQR(false);
+      });
+    });
+
+    // Download exact 300x300px crisp PNG file
+    downloadBtn.addEventListener('click', () => {
+      const fgColor = qrColorInput.value;
+      const bgColor = bgColorInput.value;
+      const iconType = iconSelect.value;
+      const customChar = customIconInput.value.trim();
+      const dotType = dotsStyleSelect.value;
+      const urlText = urlInput.value.trim() || "https://google.com";
+      const ecl = errorCorrectionSelect.value;
+
+      // Instance sized exactly 300x300 for export
+      const downloadQrInstance = new QRCodeStyling({
+        width: 300,
+        height: 300,
+        type: "canvas",
+        data: urlText,
+        image: getIconSvg(iconType, fgColor, customChar),
+        dotsOptions: {
+          color: fgColor,
+          type: dotType
+        },
+        cornersSquareOptions: {
+          color: fgColor,
+          type: "extra-rounded"
+        },
+        cornersDotOptions: {
+          color: fgColor,
+          type: "dot"
+        },
+        backgroundOptions: {
+          color: bgColor
+        },
+        imageOptions: {
+          crossOrigin: "anonymous",
+          margin: 1,
+          imageSize: 0.22
+        },
+        qrOptions: {
+          errorCorrectionLevel: ecl
+        }
+      });
+
+      downloadQrInstance.download({
+        name: "Ma-QR-Thiep-Cuoi-Vinh-Giang-300px",
+        extension: "png"
+      });
+    });
+  </script>
+</body>
+</html>
